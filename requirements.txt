@@ -1,0 +1,5 @@
+pygame==1.9.6
+nasa-api-wrapper==0.1.5
+pendulum==2.0.4
+tqdm==4.32.1
+PyInquirer==1.0.3
