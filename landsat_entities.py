@@ -8,6 +8,7 @@ from settings import MAX_CLOUD_SCORE
 from os import listdir
 from os.path import isfile, join
 import pickle
+from constants import DEBUG_PICS_PATH, ASSETS_PATH
 
 
 class LandsatImage:
@@ -66,12 +67,12 @@ class LandsatBisector:
     @staticmethod
     def save_asset(asset, number):
        
-        path_asset = 'F:/development/repos/firecatcher-bot/assets/'
+        path_asset = ASSETS_PATH
         with open(join(path_asset, 'asset_{}'.format(number)), 'wb') as asset_file:
             pickle.dump(asset, asset_file)
 
     @staticmethod
-    def load_asset(asset_file, asset_path='F:/development/repos/firecatcher-bot/assets/'):
+    def load_asset(asset_file, asset_path=ASSETS_PATH):
         with open(join(asset_path, asset_file), 'rb') as asset_file:
             return pickle.load(asset_file)
 
@@ -87,19 +88,18 @@ class LandsatBisector:
 
         return out
 
-    def get_shots(self, download=False):
+    def get_shots(self, force_download=False):
         """
         Not all returned assets are useful (some have clouds). This function
         does some filtering in order to remove those useless assets and returns
         pre-computed shots which can be used more easily.
         """
 
-        debug_pics_path = 'F:/development/repos/firecatcher-bot/debug_pics/'
-        last_image_path = join(debug_pics_path, 'img_181.png')
+        last_image_path = join(DEBUG_PICS_PATH, 'img_181.png')
 
-        if isfile(last_image_path) and not download:
+        if isfile(last_image_path) and not force_download:
             print ("Images found")
-            return self.load_pics_assets(debug_pics_path)
+            return self.load_pics_assets(DEBUG_PICS_PATH)
         
         begin = '2000-01-01'
         end = pendulum.now('UTC').date().isoformat()
