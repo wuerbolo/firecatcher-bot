@@ -9,27 +9,17 @@ TOKEN = "***REMOVED***"
 class WuersoTestBot:
 
     def __init__(self):
-
         self.url = "https://api.telegram.org/bot{}/".format(TOKEN)
-
-    def send_photo(self, photo, chat_id):
-        url = self.url + 'sendPhoto?chat_id={}'.format(chat_id)
-        response = requests.post(url, files={'file': photo})
-        print(response.text)
-        print(response.status_code)
-
+        self.last_updates = {}
     
-
     def send_pic(self, image_path, chat_id, image_loaded=True):
          
-        # image_filename = os.path.basename(image_path)
         url = self.url + 'sendPhoto?chat_id={}'.format(chat_id)
         multipart_form_data = {
             'photo': open(image_path, 'rb') if not image_loaded else image_path
         }
         print(multipart_form_data)
-        response = requests.get(url,
-                                files=multipart_form_data)
+        response = requests.get(url, files=multipart_form_data)
     
         print(response.status_code)
         print(response.text)
@@ -81,17 +71,34 @@ class WuersoTestBot:
         url = self.url + "sendMessage?text={}&chat_id={}".format(text, chat_id)
         self.get_url(url)
 
+    def get_triggered_chat_id(self, updates):
+        for update in updates["result"]:
+            try:
+                if update["message"]["text"] == '/start':
+                    return update["message"]["chat"]["id"]
+            except Exception as e:
+                print(e)
+                return False        
 
-if __name__ == '__main__':
+    def check_triggered(self, updates):
+        for update in updates["result"]:
+            try:
+                return update["message"]["text"] == '/start'
+            except Exception as e:
+                print(e)
+                return False
 
-    testBot = WuersoTestBot()
-    # with open('file_rock.jpg', 'rb') as f:
-    #     jpgdata = f.read()
-    #     if jpgdata.startswith(b'\xff\xd8'):
-    #         print(u'This is a jpeg file')
-    #     testBot.send_photo(jpgdata)
-    # updates = testBot.get_updates()
-    # print(updates)
-    # testBot.send_message('alo', 186562423)
-    testBot.send_pic('F:/development/repos/firecatcher-bot/file_rock.jpg', 186562423)
-    
+    def get_player_confirmation(self, chat_id):
+        while True:
+            updates = self.get_updates(self.last_updates[chat_id])
+            if len(updates["result"]) > 0:
+                self.last_updates[chat_id] = self.get_last_update_id(updates) + 1
+            for update in updates["result"]:
+                try:
+                    if update["message"]["text"].lower() == 'yes':
+                        return True
+                    if update["message"]["text"].lower() == 'no':
+                        return False
+                except Exception as e:
+                    print(e)
+            

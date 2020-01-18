@@ -2,17 +2,31 @@ import json
 import requests
 import time
 import urllib
+import os
 
 TOKEN = "***REMOVED***"
 
 class FireCatcherBot:
 
     def __init__(self):
-
         self.url = "https://api.telegram.org/bot{}/".format(TOKEN)
+        self.last_updates = {}
+    
+    def send_pic(self, image_path, chat_id, image_loaded=True):
+         
+        url = self.url + 'sendPhoto?chat_id={}'.format(chat_id)
+        multipart_form_data = {
+            'photo': open(image_path, 'rb') if not image_loaded else image_path
+        }
+        print(multipart_form_data)
+        response = requests.get(url, files=multipart_form_data)
+    
+        print(response.status_code)
+        print(response.text)
 
     def get_url(self, url):
         response = requests.get(url)
+        print(response.text)
         content = response.content.decode("utf8")
         return content
 
@@ -43,6 +57,8 @@ class FireCatcherBot:
             except Exception as e:
                 print(e)
 
+    def send_greetings(self, chat_id):
+        self.send_message('''Hi! You need to tell me whether you see a fire in the pictures I will send you. I'll then let you know the date of the first appearance of the fire based on your responses. Thanks for playing!''', chat_id)
 
     def get_last_chat_id_and_text(self, updates):
         num_updates = len(updates["result"])
@@ -54,17 +70,38 @@ class FireCatcherBot:
 
     def send_message(self, text, chat_id):
         text = urllib.parse.quote_plus(text)
-        url = URL + "sendMessage?text={}&chat_id={}".format(text, chat_id)
+        url = self.url + "sendMessage?text={}&chat_id={}".format(text, chat_id)
         self.get_url(url)
 
+    def get_triggered_chat_id(self, updates):
+        for update in updates["result"]:
+            try:
+                if update["message"]["text"] == '/start':
+                    return update["message"]["chat"]["id"]
+            except Exception as e:
+                print(e)
+                return False        
 
-if __name__ == '__main__':
+    def check_triggered(self, updates):
+        for update in updates["result"]:
+            try:
+                return update["message"]["text"] == '/start'
+            except Exception as e:
+                print(e)
+                return False
 
-    # last_update_id = None
-    # while True:
-    #     print("getting updates")
-    #     updates = get_updates(last_update_id)
-    #     if len(updates["result"]) > 0:
-    #         last_update_id = get_last_update_id(updates) + 1
-    #         echo_all(updates)
-    #     time.sleep(0.5)
+    def get_player_confirmation(self, chat_id):
+        while True:
+            updates = self.get_updates(self.last_updates[chat_id])
+            if len(updates["result"]) > 0:
+                self.last_updates[chat_id] = self.get_last_update_id(updates) + 1
+            for update in updates["result"]:
+                try:
+                    if update["message"]["text"].lower() == 'yes' or update["message"]["text"].lower() == 'y':
+                        return True
+                    if update["message"]["text"].lower() == 'no' or update["message"]["text"].lower() == 'n':
+                        return False
+                    self.send_message("Please respond with 'yes' or 'no' (or 'y' or 'n').", chat_id)
+                except Exception as e:
+                    print(e)
+            

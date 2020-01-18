@@ -29,16 +29,6 @@ class LandsatImage:
         self._shot = value
         self.image = None
 
-    def blit(self, disp):
-        if not self.image:
-            img = self.shot.image
-            pil_img = img.image
-            buf = pil_img.tobytes()
-            size = pil_img.width, pil_img.height
-            self.image = pygame.image.frombuffer(buf, size, 'RGB')
-
-        disp.blit(self.image, (0, 0))
-
 
 class LandsatBisector:
     """
@@ -128,10 +118,3 @@ class LandsatBisector:
                 self.save_asset(asset, num)
 
         return out
-
-    def blit(self, disp):
-        """
-        Draws the current picture.
-        """
-
-        self.image.blit(disp)
