@@ -113,7 +113,7 @@ class LandsatBisector:
 
             if (img.cloud_score or 1.0) <= MAX_CLOUD_SCORE:
                 out.append(Shot(asset, img))
-                path = 'F:/development/repos/firecatcher-bot/debug_pics/img_{}.png'.format(str(num))
+                path = join(DEBUG_PICS_PATH, 'img_{}.png'.format(str(num)))
                 img.image.save(path, 'PNG')
                 self.save_asset(asset, num)
 
