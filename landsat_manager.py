@@ -3,11 +3,9 @@ import pygame
 
 from landsat_entities import LandsatBisector
 from settings import BLACK, LON, LAT, DISPLAY_SIZE
-# from fire_catcher_bot import FireCatcherBot
-from wuerso_test_bot import WuersoTestBot
 
 
-def bisect(n, mapper, tester):
+def bisect(n, mapper, tester, chat_id):
     """
     Runs a bisection.
 
@@ -28,7 +26,7 @@ def bisect(n, mapper, tester):
 
         val = mapper(mid)
 
-        if tester(val):
+        if tester(val, chat_id):
             right = mid
         else:
             left = mid
@@ -48,7 +46,7 @@ def confirm(title):
     }])['confirm']
 
 
-def landsat_bisection_algorithm():
+def landsat_bisection_algorithm(bot, chat_id):
     """
     Runs a bisection algorithm on a series of Landsat pictures in order
     for the user to find the approximative date of the fire.
@@ -56,11 +54,7 @@ def landsat_bisection_algorithm():
     the terminal as it is much easier to do.
     """
 
-    # pygame.init()
-
     bisector = LandsatBisector(LON, LAT)
-    bot = WuersoTestBot()
-    # disp = pygame.display.set_mode(DISPLAY_SIZE)
 
     def mapper(n):
         """
@@ -70,7 +64,7 @@ def landsat_bisection_algorithm():
 
         return n
 
-    def tester(n):
+    def tester(n, chat_id):
         """
         Displays the current candidate to the user and asks them to
         check if they see wildfire damages.
@@ -78,18 +72,12 @@ def landsat_bisection_algorithm():
 
         bisector.index = n
 
-        bot.send_pic(bisector.image.shot.image, 186562423)
-        # disp.fill(BLACK)
-        
-        # bisector.blit(disp)
-        # pygame.display.update()
+        bot.send_pic(bisector.image.shot.image, chat_id)
+        bot.send_message(f'{bisector.date} - do you see it? (Y/n)', chat_id)
+        return bot.get_player_confirmation(chat_id)
 
-        return confirm(bisector.date)
-
-    culprit = bisect(bisector.count, mapper, tester)
+    culprit = bisect(bisector.count, mapper, tester, chat_id)
     bisector.index = culprit
 
-    print(f"Found! First apparition = {bisector.date}")
 
-    # pygame.quit()
-    exit()
+    bot.send_message(f"Found! First apparition = {bisector.date}", chat_id)
