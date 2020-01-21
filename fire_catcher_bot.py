@@ -4,12 +4,13 @@ import time
 import urllib
 import os
 
-TOKEN = "***REMOVED***"
+from settings import TOKEN_FIREBOT
+
 
 class FireCatcherBot:
 
     def __init__(self):
-        self.url = "https://api.telegram.org/bot{}/".format(TOKEN)
+        self.url = "https://api.telegram.org/bot{}/".format(TOKEN_FIREBOT)
         self.last_updates = {}
     
     def send_pic(self, image_path, chat_id, image_loaded=True):

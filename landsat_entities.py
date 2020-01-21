@@ -8,7 +8,7 @@ from settings import MAX_CLOUD_SCORE
 from os import listdir
 from os.path import isfile, join
 import pickle
-from constants import DEBUG_PICS_PATH, ASSETS_PATH
+from settings import DEBUG_PICS_PATH, ASSETS_PATH
 
 
 class LandsatImage:
