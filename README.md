@@ -66,7 +66,7 @@ pipenv shell
 `
 
 `
-python echobot.py
+python main.py
 `
 
 ## TODO
@@ -76,6 +76,6 @@ python echobot.py
 - Implement states
 - Handle concurrency and asyncronicity
 - Properly give options to download or not the pics (via commandline instead of hardcoding it)
-- Add environments, constants
+- Add environments, constants --> DONE
 - Add comments
 - More refactoring
